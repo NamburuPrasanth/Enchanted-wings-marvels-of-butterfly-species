@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🦋 Butterfly Species Classifier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .upload-section h2 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-section > p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 20px;
+            padding: 60px 40px;
+            margin: 30px 0;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .upload-area:hover::before {
+            left: 100%;
+        }
+
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: linear-gradient(135deg, #e8f5e8 0%, #d4f4d4 100%);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 5rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .upload-area p {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
+
+        .upload-area p:first-of-type {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .upload-area p:last-of-type {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 12px;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        .preview-section {
+            display: none;
+            margin: 40px 0;
+            text-align: center;
+        }
+
+        .preview-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .image-preview {
+            max-width: 450px;
+            max-height: 450px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            margin: 0 auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .image-preview:hover {
+            transform: scale(1.05);
+        }
+
+        .results-section {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .prediction-card {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.3);
+        }
+
+        .prediction-card h3 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .prediction-card p {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .confidence-bar {
+            background: rgba(255,255,255,0.25);
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .confidence-fill {
+            background: linear-gradient(90deg, #ffffff 0%, #f0f0f0 100%);
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1.5s ease;
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .top-predictions {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .top-predictions h4 {
+            color: #333;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 600;
+        }
+
+        .prediction-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .prediction-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .prediction-rank {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .prediction-species {
+            flex: 1;
+            margin: 0 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .prediction-confidence {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            display: none;
+            box-shadow: 0 10px 25px rgba(244, 67, 54, 0.3);
+            font-weight: 500;
+        }
+
+        .info-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 35px;
+            border-radius: 25px;
+            margin-top: 40px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .info-section h3 {
+            color: #1976d2;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .info-section p {
+            color: #333;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .species-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .main-card {
+                padding: 30px 20px;
+            }
+            
+            .upload-area {
+                padding: 40px 20px;
+            }
+
+            .upload-icon {
+                font-size: 4rem;
+            }
+
+            .species-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .prediction-card h3 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🦋 Butterfly Species Classifier</h1>
+            <p>AI-powered butterfly identification using advanced deep learning technology</p>
+        </div>
+
+        <div class="main-card">
+            <div class="upload-section">
+                <h2>Upload a Butterfly Image</h2>
+                <p>Select or drag & drop a clear, high-quality image of a butterfly for accurate species identification</p>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">📸</div>
+                    <p><strong>Click to select an image</strong> or drag and drop here</p>
+                    <p>Supported formats: JPG, PNG, JPEG (Maximum size: 16MB)</p>
+                </div>
+                
+                <input type="file" id="fileInput" class="file-input" accept=".jpg,.jpeg,.png">
+                <button class="btn" id="uploadBtn" disabled>🔍 Classify Butterfly</button>
+                <button class="btn btn-secondary" id="clearBtn" style="display: none;">🗑️ Clear Results</button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing butterfly image with AI... Please wait</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="preview-section" id="previewSection">
+                <h3>📷 Uploaded Image Preview:</h3>
+                <img id="imagePreview" class="image-preview" alt="Uploaded butterfly image">
+            </div>
+
+            <div class="results-section" id="resultsSection">
+                <div class="prediction-card" id="predictionCard">
+                    <h3 id="predictedSpecies">Predicted Species</h3>
+                    <p id="confidenceText">Confidence: 0%</p>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="confidenceFill"></div>
+                    </div>
+                </div>
+
+                <div class="top-predictions" id="topPredictions">
+                    <h4>🏆 Top 5 Most Likely Species</h4>
+                    <div id="predictionsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>ℹ️ About This AI Classifier</h3>
+            <p>This advanced butterfly classification system uses VGG16 transfer learning architecture to identify butterfly species from photographs. For optimal results, upload clear, well-lit images with the butterfly as the main subject. The AI has been trained to recognize patterns, colors, and wing structures unique to each species.</p>
+            
+            <div class="species-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSpecies">75</div>
+                    <div class="stat-label">Butterfly Species Supported</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">VGG16</div>
+                    <div class="stat-label">Neural Network Architecture</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">224×224</div>
+                    <div class="stat-label">AI Input Resolution</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">Deep</div>
+                    <div class="stat-label">Learning Technology</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const loading = document.getElementById('loading');
+        const errorMessage = document.getElementById('errorMessage');
+        const previewSection = document.getElementById('previewSection');
+        const imagePreview = document.getElementById('imagePreview');
+        const resultsSection = document.getElementById('resultsSection');
+        const predictedSpecies = document.getElementById('predictedSpecies');
+        const confidenceText = document.getElementById('confidenceText');
+        const confidenceFill = document.getElementById('confidenceFill');
+        const predictionsList = document.getElementById('predictionsList');
+
+        let selectedFile = null;
+
+        // File input event listeners
+        fileInput.addEventListener('change', handleFileSelect);
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadBtn.addEventListener('click', classifyButterfly);
+        clearBtn.addEventListener('click', clearResults);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                validateAndPreviewFile(file);
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(event) {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                validateAndPreviewFile(file);
+            }
+        }
+
+        function validateAndPreviewFile(file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!validTypes.includes(file.type)) {
+                showError('❌ Please select a valid image file (JPG, JPEG, or PNG format)');
+                return;
+            }
+
+            // Validate file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                showError('❌ File size too large. Please select an image smaller than 16MB');
+                return;
+            }
+
+            selectedFile = file;
+            previewImage(file);
+            uploadBtn.disabled = false;
+            hideError();
+        }
+
+        function previewImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewSection.style.display = 'block';
+                // Smooth scroll to preview
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function classifyButterfly() {
+            if (!selectedFile) {
+                showError('❌ Please select a butterfly image first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('butterfly_image', selectedFile);
+
+            // Show loading state
+            loading.style.display = 'block';
+            uploadBtn.disabled = true;
+            resultsSection.style.display = 'none';
+            hideError();
+
+            try {
+                // Simulate API call for demo purposes
+                // In real implementation, replace this with actual Flask API call
+                await simulateClassification();
+                
+                // Uncomment below for real Flask API integration:
+                /*
+                const response = await fetch('/predict_api', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    showError(data.error || 'An error occurred during classification');
+                }
+                */
+            } catch (error) {
+                showError('🌐 Network error. Please check your connection and try again.');
+                console.error('Error:', error);
+            } finally {
+                loading.style.display = 'none';
+                uploadBtn.disabled = false;
+            }
+        }
+
+        // Demo function - replace with actual API call
+        async function simulateClassification() {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            // Mock response data
+            const mockData = {
+                success: true,
+                predicted_species: 'Blue Morpho',
+                confidence: 92.5,
+                top_predictions: [
+                    { rank: 1, species: 'Blue Morpho', confidence: 92.5 },
+                    { rank: 2, species: 'Monarch', confidence: 4.2 },
+                    { rank: 3, species: 'Painted Lady', confidence: 1.8 },
+                    { rank: 4, species: 'Swallowtail', confidence: 0.9 },
+                    { rank: 5, species: 'Peacock', confidence: 0.6 }
+                ]
+            };
+            
+            displayResults(mockData);
+        }
+
+        function displayResults(data) {
+            // Update main prediction
+            predictedSpecies.textContent = data.predicted_species;
+            confidenceText.textContent = `Confidence: ${data.confidence}%`;
+            
+            // Animate confidence bar
+            setTimeout(() => {
+                confidenceFill.style.width = `${data.confidence}%`;
+            }, 300);
+
+            // Update top predictions
+            predictionsList.innerHTML = '';
+            data.top_predictions.forEach(prediction => {
+                const item = document.createElement('div');
+                item.className = 'prediction-item';
+                item.innerHTML = `
+                    <div class="prediction-rank">${prediction.rank}</div>
+                    <div class="prediction-species">${prediction.species}</div>
+                    <div class="prediction-confidence">${prediction.confidence}%</div>
+                `;
+                predictionsList.appendChild(item);
+            });
+
+            // Show results and clear button
+            resultsSection.style.display = 'block';
+            clearBtn.style.display = 'inline-block';
+            
+            // Smooth scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+
+        function clearResults() {
+            selectedFile = null;
+            fileInput.value = '';
+            previewSection.style.display = 'none';
+            resultsSection.style.display = 'none';
+            clearBtn.style.display = 'none';
+            uploadBtn.disabled = true;
+            confidenceFill.style.width = '0%';
+            hideError();
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Load species information on page load
+        window.addEventListener('load', function() {
+            // In real implementation, fetch from Flask API:
+            /*
+            fetch('/get_species_info')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalSpecies').textContent = data.total_species;
+                })
+                .catch(error => {
+                    console.error('Error loading species info:', error);
+                });
+            */
+            
+            // For demo, keep static value
+            console.log('Butterfly Classifier loaded successfully');
+        });
+    </script>
+</body>
+</html>
