@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ButterflyGaze - Butterfly Recognition</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">BUTTERFLYGAZE</div>
+      <ul class="nav-links">
+        <li><a href="#home" class="active">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#predict">Predict</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <h1>Enchanted Wings: Marvels of Butterfly Species</h1>
+      <p>Unveiling the World of Butterflies with AI-powered identification</p>
+      <a href="#predict" class="cta-button">GET STARTED</a>
+    </div>
+  </section>
+
+  <section id="about" class="container section">
+    <h2>About <span style="color: #e74c3c;">Enchanted Wings</span></h2>
+    <p>This project uses AI to identify butterflies and support biodiversity research, conservation, and citizen science.</p>
+    <div class="about-content">
+      <div class="about-text">
+        <p><b>Biodiversity Monitoring:</b> Real-time species identification for field researchers.</p>
+        <p><b>Ecological Research:</b> Track behavior and migration using automation.</p>
+        <p><b>Citizen Science:</b> Identify species from your phone and contribute to nature studies!</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="predict" class="container section">
+    <h2>Butterfly Classification</h2>
+    <p>Upload an image of a butterfly to identify its species</p>
+
+    <div class="classification-container">
+      <div class="upload-area" onclick="document.getElementById('imageInput').click()">
+        <div class="upload-text">Upload Your Image</div>
+        <input type="file" id="imageInput" accept="image/*" />
+        <div class="file-info" id="fileInfo">No file chosen</div>
+      </div>
+
+      <div id="imagePreview"></div>
+
+      <button class="predict-btn" id="predictBtn" disabled>Predict</button>
+
+      <div class="result-container" id="resultContainer">
+        <div class="result-title">Prediction Result</div>
+        <div class="result-text" id="classificationResult"></div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
+
